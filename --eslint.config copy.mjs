@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['eslint.config.mjs', 'node_modules/', 'dist/'],
+    ignores: ['eslint.config.mjs'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
@@ -17,7 +17,7 @@ export default tseslint.config(
         ...globals.node,
         ...globals.jest,
       },
-      ecmaVersion: 2022,
+      ecmaVersion: 5,
       sourceType: 'module',
       parserOptions: {
         projectService: true,
@@ -27,13 +27,9 @@ export default tseslint.config(
   },
   {
     rules: {
-      'prettier/prettier': 'error', // ✅ Ошибки форматирования Prettier будут отображаться в ESLint
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
-      '@typescript-eslint/explicit-function-return-type': 'warn', // ⚠️ Предупреждает, если нет явного типа возврата
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }], // Игнорировать переменные с `_`
-      'no-console': 'warn', // ❌ Предупреждение, если забыл `console.log`
     },
   },
 );
