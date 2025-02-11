@@ -1,9 +1,3 @@
-// @ts-check
-import eslint from '@eslint/js';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
-import globals from 'globals';
-import tseslint from 'typescript-eslint';
-
 export default tseslint.config(
   {
     ignores: ['eslint.config.mjs', 'node_modules/', 'dist/'],
@@ -27,13 +21,11 @@ export default tseslint.config(
   },
   {
     rules: {
-      'prettier/prettier': 'error', // ✅ Ошибки форматирования Prettier будут отображаться в ESLint
+      'prettier/prettier': ['error', { endOfLine: 'lf' }], // ✅ Убираем конфликты LF/CRLF
+      'no-multiple-empty-lines': ['error', { max: 1 }], // ✅ Не более одной пустой строки
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
-      '@typescript-eslint/explicit-function-return-type': 'warn', // ⚠️ Предупреждает, если нет явного типа возврата
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }], // Игнорировать переменные с `_`
-      'no-console': 'warn', // ❌ Предупреждение, если забыл `console.log`
     },
   },
 );
