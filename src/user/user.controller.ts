@@ -13,7 +13,7 @@ export class UserController {
   @Post()
   async createUser(@Body('user') createUserDto: CreateUserDto): Promise<UserEntity> {
     console.log(createUserDto);
-    const user  = this.userService.createUser(createUserDto);
+    const user  = await this.userService.createUser(createUserDto);
     return this.userService.buildUserResponse(user);
   }
 }

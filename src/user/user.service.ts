@@ -17,10 +17,10 @@ export class UserService {
     Object.assign(newUser, createUserDto);
     return await this.userRepository.save(newUser);
   }
-  generateJwt(user: Promise<UserEntity>): string {
+  generateJwt(user: UserEntity): string {
     return 'xxxxxx';
   }
-  buildUserResponse(user: Promise<UserEntity>): any {
+  buildUserResponse(user: UserEntity): any {
     return {
       user: {
         ...user,
