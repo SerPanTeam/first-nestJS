@@ -1,0 +1,15 @@
+### Получение списка пользователей
+GET http://localhost:3000/users
+
+### Создание нового пользователя
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "user":{
+      "name": "John Doe 1",
+      "email": "john@example.com 1",
+      "role": "admin 1",
+      "password": "1234"
+    }
+}
