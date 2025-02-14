@@ -100,9 +100,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     UserModule,
     TagModule,
-    ConfigModule.forRoot({ isGlobal: true }),
     // TypeOrmModule.forRoot(config),
 
     TypeOrmModule.forRootAsync({
@@ -147,11 +147,42 @@ export class AppService {
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
+import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-  const port = configService.get<number>('PORT') || 3000; // 🟢 Берём порт из .env
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  // Включаем CORS (если нужно, можно настроить origin)
+  app.enableCors();
+
+  // Префикс для всех роутов (например, будет /api/users, /api/tags)
+  app.setGlobalPrefix('api');
+
+  // 1) Настраиваем конфигурацию Swagger
+  const config = new DocumentBuilder()
+    .setTitle('My App')
+    .setDescription('API documentation')
+    .setVersion('1.0')
+    // .addBearerAuth() // если нужно авторизовываться через Bearer Token
+    .build();
+
+  // 2) Создаём документ
+  const document = SwaggerModule.createDocument(app, config);
+
+  // 3) Подключаем UI на эндпоинте /api/docs
+  SwaggerModule.setup('api/docs', app, document);
+
+  const port = configService.get<number>('PORT') || 3333; // 🟢 Берём порт из .env
   await app.listen(port);
 }
 void bootstrap();
@@ -232,9 +263,23 @@ export class TagService {
 ## src\user\dto\createUser.dto.ts
 
 ```typescript
+import { IsString, IsEmail, IsNotEmpty, Length } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+
+
 export class CreateUserDto {
+  @ApiProperty({ example: 'john_doe', description: 'Username' })
+  @IsString()
+  @IsNotEmpty()
   readonly username: string;
+
+  @ApiProperty({ example: 'john@example.com', description: 'User email' })
+  @IsEmail()
   readonly email: string;
+
+  @ApiProperty({ example: 'strongPassword123' })
+  @IsString()
+  @Length(6, 50)
   readonly password: string;
 }
 
@@ -247,15 +292,18 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UserEntity } from './user.entity';
-
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+@ApiTags('users') // Группа в Swagger
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
   @Get()
+  @ApiOperation({ summary: 'Get all users' })
   showAllUsers() {
     return this.userService.findAll();
   }
   @Post()
+  @ApiOperation({ summary: 'Create new user' })
   async createUser(@Body('user') createUserDto: CreateUserDto): Promise<UserEntity> {
     console.log(createUserDto);
     const user  = await this.userService.createUser(createUserDto);
@@ -276,8 +324,8 @@ export class UserEntity {
   @PrimaryGeneratedColumn()
   id: number;
   @Column()
-  name: string;
-  @Column()
+  username: string;
+  @Column({ unique: true })
   email: string;
   @Column({ default: '' })
   role: string;
@@ -289,7 +337,7 @@ export class UserEntity {
   password: string;
 
   @BeforeInsert()
-  async hashPasswort() {
+  async hashPassword() {
     this.password = await hash(this.password, 10);
   }
 }
