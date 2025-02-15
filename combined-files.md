@@ -388,9 +388,10 @@ export class UserService {
     return 'xxxxxx';
   }
   buildUserResponse(user: UserEntity): any {
+    const { password, ...restFieldsUser } = user;
     return {
       user: {
-        ...user,
+        ...restFieldsUser,
         token: this.generateJwt(user),
       },
     };

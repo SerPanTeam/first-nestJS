@@ -14,7 +14,8 @@ export class UserController {
   }
   @Post()
   @ApiOperation({ summary: 'Create new user' })
-  async createUser(@Body('user') createUserDto: CreateUserDto): Promise<UserEntity> {
+  async createUser(@Body() createUserDto: CreateUserDto): Promise<UserEntity> {
+  // async createUser(@Body('user') createUserDto: CreateUserDto): Promise<UserEntity> {
     console.log(createUserDto);
     const user  = await this.userService.createUser(createUserDto);
     return this.userService.buildUserResponse(user);
